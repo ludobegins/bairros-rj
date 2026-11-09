@@ -25,19 +25,6 @@ export function gameScreen(ctx: AppContext, nav: Nav, config: GameConfig): () =>
   const progress = h('span', { class: 'hud-progress' });
   const score = h('span', { class: 'hud-score' });
   const clock = h('span', { class: 'hud-time', 'aria-label': 'Tempo' });
-  const bgButton = h(
-    'button',
-    {
-      class: 'icon',
-      'aria-pressed': String(ctx.background),
-      title: 'Mapa de fundo',
-      onclick: () => {
-        ctx.setBackground(!ctx.background);
-        bgButton.setAttribute('aria-pressed', String(ctx.background));
-      },
-    },
-    'Fundo',
-  );
   const quitButton = h(
     'button',
     {
@@ -51,7 +38,7 @@ export function gameScreen(ctx: AppContext, nav: Nav, config: GameConfig): () =>
     },
     '✕',
   );
-  const hud = h('header', { class: 'hud' }, progress, score, clock, bgButton, quitButton);
+  const hud = h('header', { class: 'hud' }, progress, score, clock, quitButton);
 
   const prompt = h('h2', { class: 'prompt' });
   const attempts = h('div', { class: 'attempts', 'aria-label': 'Tentativas restantes' });

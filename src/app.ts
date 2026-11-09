@@ -1,8 +1,7 @@
 import { isPlayable } from './core/round.ts';
 import { GameStorage } from './core/storage.ts';
 import { loadPlaces } from './data.ts';
-import { MapView } from './map/mapView.ts';
-import type { Theme } from './map/style.ts';
+import { MapView, loadBasemapStyle } from './map/mapView.ts';
 import type { GameConfig } from './types.ts';
 import type { AppContext, Nav } from './ui/context.ts';
 import { h } from './ui/dom.ts';
@@ -20,12 +19,8 @@ export async function startApp(app: HTMLElement): Promise<void> {
   app.append(mapEl, root, toastEl);
   trackKeyboard();
 
-  const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  const theme = (): Theme => (darkQuery.matches ? 'dark' : 'light');
-
-  const data = await loadPlaces();
-  const view = new MapView({ container: mapEl, data, theme: theme() });
-  darkQuery.addEventListener('change', () => view.setTheme(theme()));
+  const [data, basemap] = await Promise.all([loadPlaces(), loadBasemapStyle()]);
+  const view = new MapView({ container: mapEl, data, basemap });
 
   const updateInsets = watchInsets(root, view);
 
@@ -41,15 +36,9 @@ export async function startApp(app: HTMLElement): Promise<void> {
     storage,
     root,
     config: prefs?.config ?? DEFAULT_CONFIG,
-    background: prefs?.background ?? false,
     setConfig(config) {
       ctx.config = config;
-      storage.setPrefs({ config, background: ctx.background });
-    },
-    setBackground(on) {
-      ctx.background = on;
-      view.setBackground(on);
-      storage.setPrefs({ config: ctx.config, background: on });
+      storage.setPrefs({ config });
     },
     prepareMap(config, fit = true) {
       view.setShowMunicipalities(config.area === 'grande-rio');
@@ -86,7 +75,6 @@ export async function startApp(app: HTMLElement): Promise<void> {
   };
 
   await view.whenReady();
-  view.setBackground(ctx.background);
   nav.menu();
   if (import.meta.env.DEV) Object.assign(window, { __view: view, __ctx: ctx, __nav: nav });
 }

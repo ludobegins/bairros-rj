@@ -53,16 +53,6 @@ export const menuScreen: Screen = (ctx, nav) => {
       (area) => update({ area }),
     ),
     h('label', { class: 'field' }, h('span', {}, 'Zona do Rio'), zoneSelect),
-    h(
-      'label',
-      { class: 'switch' },
-      h('input', {
-        type: 'checkbox',
-        checked: ctx.background,
-        onchange: (e: Event) => ctx.setBackground((e.target as HTMLInputElement).checked),
-      }),
-      h('span', {}, 'Mostrar mapa de fundo (mais fácil)'),
-    ),
     record,
     h('button', { class: 'primary', onclick: () => nav.play(ctx.config) }, 'Jogar'),
     h('button', { class: 'link', onclick: () => nav.stats() }, 'Estatísticas'),

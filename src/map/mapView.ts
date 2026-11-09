@@ -16,11 +16,11 @@ import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import type { FeatureCollection, Geometry, Position } from 'geojson';
 import type { PlaceProps } from '../types.ts';
 import {
+  BASEMAP_EXCLUDED_LAYERS,
   BASEMAP_STYLE_URL,
   DATA_ATTRIBUTION,
+  FILL_OPACITY,
   MAP_COLORS,
-  type MapColors,
-  type Theme,
 } from './style.ts';
 
 /** Visual status of a place, stored as MapLibre feature-state. */
@@ -39,9 +39,7 @@ setWorkerUrl(workerUrl);
 
 /** Smallest on-screen size (px) a highlighted place should have. */
 const MIN_VISIBLE_PX = 44;
-/** Fill opacity of places outside the zone filter. */
-const DIMMED_OPACITY = 0.3;
-/** Prefix of layers copied from the basemap style. */
+/** Prefix of layers/sources copied from the basemap style. */
 const BASEMAP_PREFIX = 'basemap-';
 /** Tap tolerance (px) when the tap point hits no place (e.g. tiny islands). */
 const TAP_TOLERANCE_PX = 10;
@@ -65,7 +63,20 @@ export interface Insets {
 export interface MapViewOptions {
   container: HTMLElement;
   data: PlacesData;
-  theme: Theme;
+  /** Basemap style (see loadBasemapStyle); null draws a plain background. */
+  basemap: StyleSpecification | null;
+}
+
+/** Fetches the basemap style; resolves to null if it's unavailable. */
+export async function loadBasemapStyle(): Promise<StyleSpecification | null> {
+  try {
+    const res = await fetch(BASEMAP_STYLE_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return (await res.json()) as StyleSpecification;
+  } catch (err) {
+    console.warn('Basemap unavailable', err);
+    return null;
+  }
 }
 
 /**
@@ -75,7 +86,6 @@ export interface MapViewOptions {
 export class MapView {
   readonly map: MapLibreMap;
   private readonly places = new Map<string, { props: PlaceProps; source: SourceId; bbox: Bbox }>();
-  private theme: Theme;
   private playable: (p: PlaceProps) => boolean = () => true;
   private showMunicipalities = true;
   private clickHandler: ((id: string) => void) | null = null;
@@ -83,15 +93,10 @@ export class MapView {
   private highlightedId: string | null = null;
   private pulseFrame = 0;
   private flashTimers = new Map<string, number>();
-  private backgroundOn = false;
   private insets: Insets = { top: 0, right: 0, bottom: 0, left: 0 };
-  /** Theme whose basemap layers are currently in the style (null = none loaded). */
-  private basemapTheme: Theme | null = null;
-  private basemapRequest = 0;
   private readonly ready: Promise<void>;
 
-  constructor({ container, data, theme }: MapViewOptions) {
-    this.theme = theme;
+  constructor({ container, data, basemap }: MapViewOptions) {
     for (const source of SOURCES) {
       for (const f of data[source].features) {
         this.places.set(f.properties.id, { props: f.properties, source, bbox: bboxOf(f.geometry) });
@@ -100,7 +105,7 @@ export class MapView {
 
     this.map = new MapLibreMap({
       container,
-      style: buildStyle(data, theme),
+      style: buildStyle(data, basemap),
       bounds: this.boundsOf([...this.places.keys()].filter((id) => id.startsWith('nb-'))),
       fitBoundsOptions: { padding: 16 },
       maxBounds: MAX_BOUNDS,
@@ -136,7 +141,7 @@ export class MapView {
   setShowMunicipalities(show: boolean): void {
     this.showMunicipalities = show;
     const v = show ? 'visible' : 'none';
-    for (const layer of ['municipalities-fill', 'municipalities-line']) {
+    for (const layer of ['fill', 'highlight', 'casing', 'line'].map((l) => `municipalities-${l}`)) {
       this.map.setLayoutProperty(layer, 'visibility', v);
     }
   }
@@ -145,79 +150,6 @@ export class MapView {
   setPlayable(predicate: (p: PlaceProps) => boolean): void {
     this.playable = predicate;
     for (const [id, { props }] of this.places) this.setState(id, { dimmed: !predicate(props) });
-  }
-
-  setBackground(on: boolean): void {
-    this.backgroundOn = on;
-    for (const source of SOURCES) {
-      this.map.setPaintProperty(`${source}-fill`, 'fill-opacity', fillOpacity(on ? 0.55 : 1));
-    }
-    if (on && this.basemapTheme !== this.theme) void this.loadBasemap(this.theme);
-    else this.setBasemapVisibility(on);
-  }
-
-  /** Copies the non-label layers of the themed basemap style under our layers. */
-  private async loadBasemap(theme: Theme): Promise<void> {
-    const request = ++this.basemapRequest;
-    let style: StyleSpecification;
-    try {
-      const res = await fetch(BASEMAP_STYLE_URL[theme]);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      style = (await res.json()) as StyleSpecification;
-    } catch (err) {
-      console.warn('Basemap unavailable', err);
-      return;
-    }
-    await this.ready;
-    if (request !== this.basemapRequest) return; // superseded by a newer theme/toggle
-
-    this.removeBasemap();
-    for (const [id, source] of Object.entries(style.sources)) {
-      this.map.addSource(BASEMAP_PREFIX + id, source);
-    }
-    for (const layer of style.layers) {
-      if (layer.type === 'symbol') continue; // labels and icons
-      const copy = { ...layer, id: BASEMAP_PREFIX + layer.id } as LayerSpecification;
-      if ('source' in copy && typeof copy.source === 'string') {
-        copy.source = BASEMAP_PREFIX + copy.source;
-      }
-      this.map.addLayer(copy, 'municipalities-fill');
-    }
-    this.basemapTheme = theme;
-    this.setBasemapVisibility(this.backgroundOn);
-  }
-
-  private removeBasemap(): void {
-    const style = this.map.getStyle();
-    for (const layer of style.layers) {
-      if (layer.id.startsWith(BASEMAP_PREFIX)) this.map.removeLayer(layer.id);
-    }
-    for (const id of Object.keys(style.sources)) {
-      if (id.startsWith(BASEMAP_PREFIX)) this.map.removeSource(id);
-    }
-    this.basemapTheme = null;
-  }
-
-  private setBasemapVisibility(on: boolean): void {
-    for (const layer of this.map.getStyle().layers) {
-      if (layer.id.startsWith(BASEMAP_PREFIX)) {
-        this.map.setLayoutProperty(layer.id, 'visibility', on ? 'visible' : 'none');
-      }
-    }
-  }
-
-  setTheme(theme: Theme): void {
-    if (theme === this.theme) return;
-    this.theme = theme;
-    const c = MAP_COLORS[theme];
-    this.map.setPaintProperty('background', 'background-color', c.background);
-    for (const source of SOURCES) {
-      this.map.setPaintProperty(`${source}-fill`, 'fill-color', fillColor(c, source));
-      this.map.setPaintProperty(`${source}-line`, 'line-color', lineColor(c, source));
-      this.map.setPaintProperty(`${source}-highlight`, 'fill-color', c.target);
-    }
-    if (this.backgroundOn) void this.loadBasemap(theme);
-    else if (this.basemapTheme) this.removeBasemap();
   }
 
   setStatus(id: string, status: PlaceStatus): void {
@@ -251,7 +183,7 @@ export class MapView {
       // ~20 fps is smooth enough for a pulse and spares mobile batteries.
       if (t - last >= 50) {
         last = t;
-        const opacity = 0.55 + 0.4 * Math.sin(((t - start) / 600) * Math.PI);
+        const opacity = 0.45 + 0.3 * Math.sin(((t - start) / 600) * Math.PI);
         for (const source of SOURCES) {
           this.map.setPaintProperty(`${source}-highlight`, 'fill-opacity', opacity);
         }
@@ -401,70 +333,134 @@ export class MapView {
   }
 }
 
-function fillColor(c: MapColors, source: SourceId): ExpressionSpecification {
-  const base = source === 'municipalities' ? c.fillMunicipality : c.fill;
-  return [
-    'case',
-    ['boolean', ['feature-state', 'flash'], false],
-    c.missed,
-    ['==', ['feature-state', 'status'], 'correct1'],
-    c.correct1,
-    ['==', ['feature-state', 'status'], 'correctLate'],
-    c.correctLate,
-    ['==', ['feature-state', 'status'], 'missed'],
-    c.missed,
-    ['boolean', ['feature-state', 'dimmed'], false],
-    c.dimmed,
-    ['boolean', ['feature-state', 'hover'], false],
-    c.hover,
-    base,
-  ];
-}
+const featureFlag = (name: string): ExpressionSpecification => [
+  'boolean',
+  ['feature-state', name],
+  false,
+];
+const hasStatus: ExpressionSpecification = [
+  'all',
+  ['!=', ['feature-state', 'status'], null],
+  ['!=', ['feature-state', 'status'], 'default'],
+];
 
-function fillOpacity(base: number): ExpressionSpecification {
-  return ['case', ['boolean', ['feature-state', 'dimmed'], false], base * DIMMED_OPACITY, base];
-}
+const FILL_COLOR: ExpressionSpecification = [
+  'case',
+  featureFlag('flash'),
+  MAP_COLORS.missed,
+  ['==', ['feature-state', 'status'], 'correct1'],
+  MAP_COLORS.correct1,
+  ['==', ['feature-state', 'status'], 'correctLate'],
+  MAP_COLORS.correctLate,
+  ['==', ['feature-state', 'status'], 'missed'],
+  MAP_COLORS.missed,
+  featureFlag('dimmed'),
+  MAP_COLORS.dimmed,
+  featureFlag('hover'),
+  MAP_COLORS.hover,
+  MAP_COLORS.fill,
+];
 
-function lineColor(c: MapColors, source: SourceId): string {
-  return source === 'municipalities' ? c.lineMunicipality : c.line;
-}
+const FILL_OPACITY_EXPR: ExpressionSpecification = [
+  'case',
+  featureFlag('flash'),
+  FILL_OPACITY.flash,
+  hasStatus,
+  FILL_OPACITY.status,
+  featureFlag('dimmed'),
+  FILL_OPACITY.dimmed,
+  featureFlag('hover'),
+  FILL_OPACITY.hover,
+  FILL_OPACITY.default,
+];
 
-function buildStyle(data: PlacesData, theme: Theme): StyleSpecification {
-  const c = MAP_COLORS[theme];
+/** Our place layers on top of the basemap's non-label layers. */
+function buildStyle(data: PlacesData, basemap: StyleSpecification | null): StyleSpecification {
   const style: StyleSpecification = {
     version: 8,
     sources: {},
-    layers: [{ id: 'background', type: 'background', paint: { 'background-color': c.background } }],
+    layers: [
+      {
+        id: 'background',
+        type: 'background',
+        paint: { 'background-color': MAP_COLORS.background },
+      },
+    ],
   };
+
+  if (basemap) {
+    if (basemap.sprite) style.sprite = basemap.sprite; // needed by pattern fills
+    for (const [id, source] of Object.entries(basemap.sources)) {
+      style.sources[BASEMAP_PREFIX + id] = source;
+    }
+    for (const layer of basemap.layers) {
+      if (layer.type === 'symbol' || BASEMAP_EXCLUDED_LAYERS.has(layer.id)) continue;
+      const copy = { ...layer, id: BASEMAP_PREFIX + layer.id } as LayerSpecification;
+      if ('source' in copy && typeof copy.source === 'string') {
+        copy.source = BASEMAP_PREFIX + copy.source;
+      }
+      style.layers.push(copy);
+    }
+  }
+
   // Municipalities first so neighborhoods draw on top.
   for (const source of ['municipalities', 'neighborhoods'] as const) {
+    const isMun = source === 'municipalities';
     style.sources[source] = {
       type: 'geojson',
       data: data[source],
       promoteId: 'id',
-      attribution: source === 'neighborhoods' ? DATA_ATTRIBUTION : undefined,
+      attribution: isMun ? undefined : DATA_ATTRIBUTION,
     };
+    // [zoom, width] stops; zoom expressions must be the outermost interpolate.
+    const stops = isMun
+      ? [
+          [8, 1],
+          [13, 2.5],
+        ]
+      : [
+          [9, 0.6],
+          [12, 1.4],
+          [15, 2.5],
+        ];
+    const width = (extra: number): ExpressionSpecification => [
+      'interpolate',
+      ['linear'],
+      ['zoom'],
+      ...stops.flatMap(([z, w]) => [z, w + extra]),
+    ];
     style.layers.push(
       {
         id: `${source}-fill`,
         type: 'fill',
         source,
-        paint: { 'fill-color': fillColor(c, source), 'fill-opacity': fillOpacity(1) },
+        paint: { 'fill-color': FILL_COLOR, 'fill-opacity': FILL_OPACITY_EXPR },
       },
       {
         id: `${source}-highlight`,
         type: 'fill',
         source,
         filter: ['==', ['get', 'id'], ''],
-        paint: { 'fill-color': c.target, 'fill-opacity': 0.8 },
+        paint: { 'fill-color': MAP_COLORS.target, 'fill-opacity': 0.6 },
+      },
+      {
+        // Light halo under the border so it stays legible over a busy basemap.
+        id: `${source}-casing`,
+        type: 'line',
+        source,
+        paint: {
+          'line-color': MAP_COLORS.casing,
+          'line-opacity': 0.7,
+          'line-width': width(2),
+        },
       },
       {
         id: `${source}-line`,
         type: 'line',
         source,
         paint: {
-          'line-color': lineColor(c, source),
-          'line-width': ['interpolate', ['linear'], ['zoom'], 9, 0.4, 13, 1.2],
+          'line-color': isMun ? MAP_COLORS.lineMunicipality : MAP_COLORS.line,
+          'line-width': width(0),
         },
       },
     );

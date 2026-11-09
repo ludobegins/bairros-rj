@@ -19,7 +19,6 @@ export interface PlaceStats {
 /** Last menu choices, restored on the next visit. */
 export interface Prefs {
   config: GameConfig;
-  background: boolean;
 }
 
 interface StoredData {

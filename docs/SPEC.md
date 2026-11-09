@@ -32,7 +32,7 @@ In both modes, every place is drawn on the map with its boundaries visible and *
 
 ## 3. Structure of a game
 
-- **Setup (menu):** mode (type / click), area (Só Rio / Grande Rio), zone filter (§5), map background (§6).
+- **Setup (menu):** mode (type / click), area (Só Rio / Grande Rio), zone filter (§5).
 - **Round:** 10 places drawn without repetition. If fewer than 10 are available, the round uses all of them.
 
 ### 3.1 Area: Só Rio vs. Grande Rio
@@ -73,11 +73,12 @@ In both modes, every place is drawn on the map with its boundaries visible and *
 
 ## 6. Map visuals
 
-- **No background (default):** only place polygons over a flat background (water/city limits suggested by color). "Hard" mode.
-- **With background:** label-free basemap tiles (streets, terrain, beaches) under semi-transparent polygons. "Easy" mode.
-- Toggleable in the menu and also during the game.
-- Boundaries always visible; on desktop, hover highlights the polygon under the cursor in click mode.
-- Light/dark theme following the system setting.
+- **Always-on basemap**, so players orient themselves the way they would on a normal map: streets and expressways, rail lines, parks and forests (the Tijuca and Pedra Branca massifs), water, beaches, buildings. **No labels or icons of any kind.**
+- The basemap is always light, also when the UI follows a dark system theme (dark basemaps proved hard to read).
+- Place polygons are almost transparent (thin, clearly visible borders with a light halo); color is used only for the highlighted place, answer results and places outside the zone filter (greyed out).
+- There is a single difficulty level. (Playtesting showed that hiding the basemap made the game far harder than intended, so the background toggle was dropped.)
+- On desktop, hover highlights the polygon under the cursor in click mode.
+- UI panels follow the system light/dark theme.
 
 ## 7. Persistence (localStorage)
 
@@ -107,7 +108,7 @@ In both modes, every place is drawn on the map with its boundaries visible and *
 ## 10. Technical decisions (proposed)
 
 - **Stack:** Vite + TypeScript, no UI framework (plain DOM) — the game has few screens.
-- **Map:** MapLibre GL JS (good touch/pinch support, polygons as layers, background tiles can be toggled). Background: OpenFreeMap vector basemap (positron / dark styles, free, no API key) with all label/symbol layers removed, with attribution.
+- **Map:** MapLibre GL JS (good touch/pinch support, polygons as layers). Basemap: OpenFreeMap "liberty" vector style (OSM-like colors, free, no API key) with all symbol layers, 3D buildings and administrative boundaries removed, with attribution. If the basemap can't be loaded, the game still works over a plain background.
 - **Tests:** Vitest for pure logic (name normalization/validation, drawing, scoring, persistence).
 - **Data pipeline:** Node script + `mapshaper` for simplification/conversion.
 - **Deploy:** GitHub Actions → GitHub Pages on every push to `main`.

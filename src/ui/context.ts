@@ -12,9 +12,7 @@ export interface AppContext {
   root: HTMLElement;
   /** Current menu choices (kept in sync with prefs). */
   config: GameConfig;
-  background: boolean;
   setConfig(config: GameConfig): void;
-  setBackground(on: boolean): void;
   /** Applies area/zone of a config to the map (visibility, dimming, framing). */
   prepareMap(config: GameConfig, fit?: boolean): void;
   /** Re-measures panels covering the map; call after rendering, before framing. */

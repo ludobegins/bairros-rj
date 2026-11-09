@@ -127,6 +127,11 @@ bairros-rj/
 
 **Done when:** full rounds playable in both modes and both areas, on desktop and mobile, with results and stats persisted.
 
+## Playtest feedback (after Phase 4)
+
+- Map was hard to read: opaque neighborhood fills hid the basemap, positron/dark basemaps were too washed out, and the no-background mode was far too hard. → Always-on OpenFreeMap "liberty" basemap (light even in dark theme), near-transparent fills with haloed borders, background toggle removed (single "easy" level). See SPEC §6.
+- Custom favicon (Pão de Açúcar) instead of Vite's default.
+
 ## Phase 5 — Polish and release
 
 1. Accessibility pass: keyboard flow in type mode, focus management between screens, `aria-live` for feedback, color + icon in results.
@@ -141,4 +146,4 @@ bairros-rj/
 - **Data.Rio URL stability:** ArcGIS Hub export URLs change; keep the processed file committed so the site never depends on fetching at runtime.
 - **Tiny neighborhoods on mobile** (click mode): if tap accuracy is poor in playtests, consider a slightly larger hit area (query rendered features in a small bbox around the tap) — decide after Phase 3.
 - **Zone curation is subjective:** document choices in `zones.json` so they're easy to revisit.
-- **Background tiles:** OpenFreeMap is a free community service; if it becomes unavailable the toggle simply shows no basemap (the game still works).
+- **Basemap:** OpenFreeMap is a free community service; if it becomes unavailable the game falls back to a plain background (still playable, much harder).
