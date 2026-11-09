@@ -109,7 +109,9 @@ bairros-rj/
 
 **Done when:** map renders all places correctly on desktop and phone, toggles background, dims by zone, and reports taps (not drags) with the right place id.
 
-## Phase 4 — UI and game flow
+## Phase 4 — UI and game flow ✅
+
+> Done. Both modes and both areas playable end-to-end (verified with a scripted Firefox run: full rounds, wrong/unknown/skip/3-miss paths, results, high score, stats). Extras beyond the plan: tapping the map in menu/results shows the place name (study aid); panels report the screen area they cover so map framing and zoom-to-place keep targets visible above bottom sheets; last menu choices are remembered.
 
 1. App shell: map takes the full viewport; overlays for HUD and panels. Uses `visualViewport` to keep the input above the on-screen keyboard on mobile.
 2. `menu.ts`: mode, area, zone, background toggle, high score for the selected combination, links to "Estatísticas".

@@ -45,11 +45,22 @@ const DIMMED_OPACITY = 0.3;
 const BASEMAP_PREFIX = 'basemap-';
 /** Tap tolerance (px) when the tap point hits no place (e.g. tiny islands). */
 const TAP_TOLERANCE_PX = 10;
-/** Whole RMRJ, with margin; the map can't be panned far away from it. */
+/**
+ * Whole RMRJ with a generous margin, so the map can't be panned far away but can
+ * still shift a place into the free area above a bottom panel on phones.
+ */
 const MAX_BOUNDS: LngLatBoundsLike = [
-  [-44.6, -23.4],
-  [-42.0, -22.0],
+  [-45.5, -24.6],
+  [-41.5, -21.4],
 ];
+
+/** Screen space (px) covered by UI panels on each side of the map. */
+export interface Insets {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
 
 export interface MapViewOptions {
   container: HTMLElement;
@@ -73,6 +84,7 @@ export class MapView {
   private pulseFrame = 0;
   private flashTimers = new Map<string, number>();
   private backgroundOn = false;
+  private insets: Insets = { top: 0, right: 0, bottom: 0, left: 0 };
   /** Theme whose basemap layers are currently in the style (null = none loaded). */
   private basemapTheme: Theme | null = null;
   private basemapRequest = 0;
@@ -234,10 +246,15 @@ export class MapView {
     cancelAnimationFrame(this.pulseFrame);
     if (!id) return;
     const start = performance.now();
+    let last = 0;
     const tick = (t: number) => {
-      const opacity = 0.55 + 0.4 * Math.sin(((t - start) / 600) * Math.PI);
-      for (const source of SOURCES) {
-        this.map.setPaintProperty(`${source}-highlight`, 'fill-opacity', opacity);
+      // ~20 fps is smooth enough for a pulse and spares mobile batteries.
+      if (t - last >= 50) {
+        last = t;
+        const opacity = 0.55 + 0.4 * Math.sin(((t - start) / 600) * Math.PI);
+        for (const source of SOURCES) {
+          this.map.setPaintProperty(`${source}-highlight`, 'fill-opacity', opacity);
+        }
       }
       this.pulseFrame = requestAnimationFrame(tick);
     };
@@ -257,12 +274,12 @@ export class MapView {
     const size = Math.min(Math.abs(ne.x - sw.x), Math.abs(sw.y - ne.y));
     const canvas = this.map.getCanvas();
     const { clientWidth: cw, clientHeight: ch } = canvas;
-    const margin = 24;
+    const pad = this.padding(24);
     const onScreen =
-      Math.min(sw.x, ne.x) >= margin &&
-      Math.max(sw.x, ne.x) <= cw - margin &&
-      Math.min(sw.y, ne.y) >= margin &&
-      Math.max(sw.y, ne.y) <= ch - margin;
+      Math.min(sw.x, ne.x) >= pad.left &&
+      Math.max(sw.x, ne.x) <= cw - pad.right &&
+      Math.min(sw.y, ne.y) >= pad.top &&
+      Math.max(sw.y, ne.y) <= ch - pad.bottom;
 
     const zoom = this.map.getZoom();
     const neededZoom =
@@ -271,8 +288,26 @@ export class MapView {
 
     const center: [number, number] = [(w + e) / 2, (s + n) / 2];
     // If it would not fit after centering, zoom out to fit it.
-    const fitZoom = this.map.cameraForBounds(entry.bbox, { padding: margin })?.zoom ?? zoom;
-    this.map.easeTo({ center, zoom: Math.min(neededZoom, fitZoom), duration: 700 });
+    const fitZoom = this.map.cameraForBounds(entry.bbox, { padding: pad })?.zoom ?? zoom;
+    // Center it in the uncovered part of the screen.
+    const offset: [number, number] = [(pad.left - pad.right) / 2, (pad.top - pad.bottom) / 2];
+    this.map.easeTo({ center, offset, zoom: Math.min(neededZoom, fitZoom), duration: 700 });
+  }
+
+  /** Tells the map which parts of the screen are covered by UI panels. */
+  setInsets(insets: Insets): void {
+    this.insets = insets;
+  }
+
+  /** Insets plus a margin, as MapLibre padding. */
+  private padding(margin: number) {
+    const i = this.insets;
+    return {
+      top: i.top + margin,
+      right: i.right + margin,
+      bottom: i.bottom + margin,
+      left: i.left + margin,
+    };
   }
 
   /** Frames the given places (or all visible places). */
@@ -283,7 +318,9 @@ export class MapView {
         .filter(([, p]) => p.source === 'neighborhoods' || this.showMunicipalities)
         .map(([id]) => id);
     const bounds = this.boundsOf(targets);
-    if (bounds) this.map.fitBounds(bounds, { padding: 24, duration: animate ? 700 : 0 });
+    if (bounds) {
+      this.map.fitBounds(bounds, { padding: this.padding(24), duration: animate ? 700 : 0 });
+    }
   }
 
   private boundsOf(ids: string[]): LngLatBoundsLike | undefined {

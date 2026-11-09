@@ -16,10 +16,17 @@ export interface PlaceStats {
   missed: number;
 }
 
+/** Last menu choices, restored on the next visit. */
+export interface Prefs {
+  config: GameConfig;
+  background: boolean;
+}
+
 interface StoredData {
   version: 1;
   highScores: Record<string, HighScore>;
   placeStats: Record<string, PlaceStats>;
+  prefs?: Prefs;
 }
 
 type Backend = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
@@ -89,6 +96,15 @@ export class GameStorage {
     }
     this.save();
     return { isNewRecord };
+  }
+
+  getPrefs(): Prefs | undefined {
+    return this.data.prefs;
+  }
+
+  setPrefs(prefs: Prefs): void {
+    this.data.prefs = prefs;
+    this.save();
   }
 
   resetStats(): void {

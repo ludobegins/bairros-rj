@@ -88,6 +88,16 @@ describe('GameStorage', () => {
     }
   });
 
+  it('persists menu prefs', () => {
+    const backend = new MemoryBackend();
+    const prefs = {
+      config: { mode: 'click', area: 'grande-rio', zone: 'norte' },
+      background: true,
+    } as const;
+    new GameStorage(backend).setPrefs(prefs);
+    expect(new GameStorage(backend).getPrefs()).toEqual(prefs);
+  });
+
   it('ignores corrupt or foreign data', () => {
     const backend = new MemoryBackend();
     backend.setItem(STORAGE_KEY, '{not json');
