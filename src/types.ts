@@ -15,3 +15,13 @@ export interface PlaceProps {
   /** Other accepted answers besides `name` (official name, nicknames). */
   aliases: string[];
 }
+
+export type Mode = 'type' | 'click';
+export type Area = 'rio' | 'grande-rio';
+export type ZoneFilter = Zone | 'all';
+
+export interface GameConfig {
+  mode: Mode;
+  area: Area;
+  zone: ZoneFilter;
+}

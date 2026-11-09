@@ -75,7 +75,7 @@ bairros-rj/
 
 **Done when:** `npm run data:fetch && npm run data:build` produces a validated `places.json` that is committed; open questions on zones/aliases/RMRJ list are resolved in the curated files.
 
-## Phase 2 — Core logic (TDD, no DOM)
+## Phase 2 — Core logic (TDD, no DOM) ✅
 
 1. `normalize.ts`: `normalize(s)` (lowercase, NFD strip diacritics, collapse non-alphanumerics to single space, trim); `levenshtein(a, b)`.
 2. `matcher.ts`: `buildMatcher(places)` → `match(input, target)` returning:
