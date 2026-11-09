@@ -107,7 +107,7 @@ In both modes, every place is drawn on the map with its boundaries visible and *
 ## 10. Technical decisions (proposed)
 
 - **Stack:** Vite + TypeScript, no UI framework (plain DOM) — the game has few screens.
-- **Map:** MapLibre GL JS (good touch/pinch support, polygons as layers, background tiles can be toggled). Background: label-free raster tiles (e.g. CARTO `light_nolabels` / `dark_nolabels`), with attribution.
+- **Map:** MapLibre GL JS (good touch/pinch support, polygons as layers, background tiles can be toggled). Background: OpenFreeMap vector basemap (positron / dark styles, free, no API key) with all label/symbol layers removed, with attribution.
 - **Tests:** Vitest for pure logic (name normalization/validation, drawing, scoring, persistence).
 - **Data pipeline:** Node script + `mapshaper` for simplification/conversion.
 - **Deploy:** GitHub Actions → GitHub Pages on every push to `main`.

@@ -94,7 +94,9 @@ bairros-rj/
 
 **Done when:** `npm test` green with good coverage of `src/core`.
 
-## Phase 3 — Map view
+## Phase 3 — Map view ✅
+
+> Done. Notes: MapLibre v6 needs `setWorkerUrl` with the worker emitted by Vite (`?url` import). CARTO basemaps now require an API key, so the background uses OpenFreeMap vector styles with symbol layers stripped. Zone filter dims via fill opacity so playable municipalities stay distinct. Verified with headless Firefox screenshots (desktop, mobile, dark theme) and a tap on the smallest neighborhood (Argentino) after `ensureVisible`.
 
 1. `mapView.ts` wrapping MapLibre:
    - Load TopoJSON → GeoJSON sources (`neighborhoods`, `municipalities`), with `promoteId: 'id'` so feature-state works.
@@ -137,4 +139,4 @@ bairros-rj/
 - **Data.Rio URL stability:** ArcGIS Hub export URLs change; keep the processed file committed so the site never depends on fetching at runtime.
 - **Tiny neighborhoods on mobile** (click mode): if tap accuracy is poor in playtests, consider a slightly larger hit area (query rendered features in a small bbox around the tap) — decide after Phase 3.
 - **Zone curation is subjective:** document choices in `zones.json` so they're easy to revisit.
-- **Background tiles:** CARTO basemaps have usage terms; confirm they fit a personal non-commercial project, otherwise fall back to another label-free tile source.
+- **Background tiles:** OpenFreeMap is a free community service; if it becomes unavailable the toggle simply shows no basemap (the game still works).
