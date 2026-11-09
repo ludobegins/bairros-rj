@@ -5,9 +5,7 @@
   ],
   "municipalities": [
     { "ibge": "3300456", "name": "Belford Roxo" },
-    { "ibge": "3300803", "name": "Cachoeiras de Macacu" },
     { "ibge": "3301702", "name": "Duque de Caxias" },
-    { "ibge": "3301850", "name": "Guapimirim" },
     { "ibge": "3301900", "name": "Itaboraí" },
     { "ibge": "3302007", "name": "Itaguaí" },
     { "ibge": "3302270", "name": "Japeri" },
@@ -17,8 +15,6 @@
     { "ibge": "3303203", "name": "Nilópolis" },
     { "ibge": "3303302", "name": "Niterói" },
     { "ibge": "3303500", "name": "Nova Iguaçu" },
-    { "ibge": "3303609", "name": "Paracambi" },
-    { "ibge": "3303906", "name": "Petrópolis" },
     { "ibge": "3304144", "name": "Queimados" },
     { "ibge": "3304300", "name": "Rio Bonito" },
     { "ibge": "3304904", "name": "São Gonçalo" },
