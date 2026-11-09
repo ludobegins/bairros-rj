@@ -16,11 +16,8 @@
     "Cidade Nova",
     "Estácio",
     "Imperial de São Cristóvão",
-    "Mangueira",
-    "Benfica",
     "Paquetá",
     "Santa Teresa",
-    "Vasco da Gama",
     "Lapa"
   ],
   "sul": [
@@ -44,6 +41,9 @@
     "Rocinha"
   ],
   "norte": [
+    "Mangueira",
+    "Benfica",
+    "Vasco da Gama",
     "Praça da Bandeira",
     "Tijuca",
     "Alto da Boa Vista",
