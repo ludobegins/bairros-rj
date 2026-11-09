@@ -9,12 +9,13 @@ bairros-rj/
 ├── data/
 │   ├── raw/                     # downloaded sources (gitignored)
 │   └── curated/
-│       ├── zones.json           # neighborhood id → zone
-│       ├── aliases.json         # place id → extra accepted names
+│       ├── zones.json           # zone → official neighborhood names
+│       ├── overrides.json       # display names + extra accepted names
 │       └── rmrj.json            # IBGE codes of Metropolitan Region municipalities
 ├── scripts/
-│   ├── fetch-data.ts            # downloads Data.Rio + IBGE sources into data/raw
-│   └── build-data.ts            # normalize, merge curated, simplify, validate → public/data
+│   ├── fetch-data.ts            # downloads IPP + IBGE sources into data/raw
+│   ├── build-data.ts            # merge curated, validate, simplify → public/data
+│   └── lib/places.ts            # pure build/validation logic (unit-tested)
 ├── public/
 │   └── data/places.json         # processed output (committed; TopoJSON)
 ├── src/
@@ -42,7 +43,7 @@ bairros-rj/
     └── PLAN.md
 ```
 
-## Phase 0 — Scaffolding
+## Phase 0 — Scaffolding ✅
 
 1. `npm create vite` (vanilla-ts template); add `maplibre-gl`, `topojson-client`; dev deps `vitest`, `mapshaper`, `tsx`, `topojson-server`, `prettier`, `eslint`.
 2. Set `base` in `vite.config.ts` to the repo name for GitHub Pages.
@@ -52,7 +53,9 @@ bairros-rj/
 
 **Done when:** blank page deploys to GitHub Pages; `npm test` runs (with a trivial test).
 
-## Phase 1 — Data pipeline
+## Phase 1 — Data pipeline ✅
+
+> Done. Sources and curation rules are documented in [data/README.md](../data/README.md). 167 neighborhoods + 21 municipalities, 187 KB (61 KB gzipped) at 20% simplification.
 
 1. **Find sources** and record URLs + license/attribution in `data/README.md`:
    - Data.Rio "Limite de Bairros" (GeoJSON, ArcGIS Hub export).

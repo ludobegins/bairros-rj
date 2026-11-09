@@ -10,10 +10,13 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint . && prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "data:fetch": "tsx scripts/fetch-data.ts",
+    "data:build": "tsx scripts/build-data.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/geojson": "^7946.0.16",
     "@types/node": "^26.6.6",
     "@types/topojson-client": "^3.1.5",
     "@types/topojson-server": "^3.0.4",

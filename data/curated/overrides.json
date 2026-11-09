@@ -1,0 +1,31 @@
+{
+  "_notes": [
+    "Per-place overrides keyed by official name (IPP name for neighborhoods, rmrj.json name for municipalities).",
+    "displayName: name shown in the UI (the official name is always accepted as an answer too).",
+    "aliases: extra accepted answers. An alias may be shared by several places (e.g. 'Freguesia'); it is then accepted only for the place being asked."
+  ],
+  "places": {
+    "Imperial de São Cristóvão": {
+      "displayName": "São Cristóvão",
+      "aliases": ["Imperial de São Cristóvão"]
+    },
+    "Freguesia (Ilha)": {
+      "displayName": "Freguesia (Ilha do Governador)",
+      "aliases": ["Freguesia"]
+    },
+    "Freguesia (Jacarepaguá)": { "aliases": ["Freguesia"] },
+    "Recreio dos Bandeirantes": { "aliases": ["Recreio"] },
+    "Barra da Tijuca": { "aliases": ["Barra"] },
+    "Complexo do Alemão": { "aliases": ["Alemão"] },
+    "Maré": { "aliases": ["Complexo da Maré"] },
+    "Quintino Bocaiúva": { "aliases": ["Quintino"] },
+    "Jardim Sulacap": { "aliases": ["Sulacap"] },
+    "Cidade Universitária": { "aliases": ["Fundão", "Ilha do Fundão"] },
+    "Osvaldo Cruz": { "aliases": ["Oswaldo Cruz"] },
+    "Vila Kosmos": { "aliases": ["Vila Cosmos"] },
+    "Turiaçú": { "aliases": ["Turiaçu"] },
+    "Duque de Caxias": { "aliases": ["Caxias"] },
+    "São João de Meriti": { "aliases": ["Meriti"] },
+    "Cachoeiras de Macacu": { "aliases": ["Cachoeiras"] }
+  }
+}

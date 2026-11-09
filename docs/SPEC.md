@@ -67,7 +67,7 @@ In both modes, every place is drawn on the map with its boundaries visible and *
 ## 5. Zone filter
 
 - Options: **Todos**, **Centro**, **Zona Sul**, **Zona Norte**, **Zona Oeste**, **Zona Sudoeste**.
-- **Zona Sudoeste:** the Barra da Tijuca / Jacarepaguá region (Barra, Recreio, Jacarepaguá, Freguesia, Taquara, Vargens, etc.), separate from Zona Oeste (Campo Grande, Bangu, Santa Cruz, etc.). The exact list follows the most widely accepted current delimitation and is documented in the curated data file.
+- **Zona Sudoeste:** created by municipal law in Sep 2025; the Barra da Tijuca / Jacarepaguá region (Barra, Recreio, Jacarepaguá, Freguesia, Taquara, Vargens, Grumari, etc. — the 20 neighborhoods of Planning Area 4), separate from Zona Oeste (Campo Grande, Bangu, Santa Cruz, Guaratiba, etc. — Planning Area 5).
 - Uses the popular division (how _cariocas_ talk), not the official Planning Areas (APs). Requires a curated `neighborhood → zone` mapping versioned in the repo (e.g. Barra da Tijuca = Zona Sudoeste; Bangu = Zona Oeste; Tijuca = Zona Norte; Ilha do Governador and Paquetá per the convention adopted and documented in the file).
 - With a filter active, the map frames the chosen zone; neighborhoods outside it are dimmed and not clickable. In Grande Rio, municipalities remain active regardless of the filter.
 
@@ -121,9 +121,9 @@ In both modes, every place is drawn on the map with its boundaries visible and *
 - "Complete the map" mode (all places), endless mode, time limits.
 - PWA/offline.
 
-## 12. Open questions
+## 12. Resolved questions (Phase 1)
 
-- Zone convention for borderline cases (Ilha do Governador, Paquetá, Grande Tijuca; exact Zona Sudoeste / Zona Oeste border, e.g. Grumari, Guaratiba) — decide while building the curated file.
-- Initial alias list.
-- Exact list of Metropolitan Region municipalities to include (the official RMRJ composition has changed over the years — use the current state law).
-- Exact neighborhood count in the current official data (new neighborhoods were created recently) — confirm on download.
+- **Zones:** derived from the official Planning Areas — AP1 = Centro, AP2.1 = Zona Sul, AP2.2 (Grande Tijuca) + AP3 = Zona Norte, AP4 = Zona Sudoeste, AP5 = Zona Oeste. Paquetá, Caju, São Cristóvão, Benfica, Mangueira and Vasco da Gama stay in Centro; Ilha do Governador is Zona Norte. Rationale in `data/curated/zones.json`.
+- **Aliases:** initial list in `data/curated/overrides.json`.
+- **RMRJ:** 21 municipalities besides Rio, per IBGE's 2025 composition list (State Complementary Law 184/2018, includes Petrópolis).
+- **Neighborhood count:** 167 in the current IPP data (includes recent ones such as Argentino, Ingleses, Barra Olímpica, Jabour).
