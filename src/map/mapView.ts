@@ -39,6 +39,10 @@ setWorkerUrl(workerUrl);
 
 /** Smallest on-screen size (px) a highlighted place should have. */
 const MIN_VISIBLE_PX = 44;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+/** Camera animation length, or none when the user prefers reduced motion. */
+const animationMs = () => (reducedMotion.matches ? 0 : 700);
+
 /** Prefix of layers/sources copied from the basemap style. */
 const BASEMAP_PREFIX = 'basemap-';
 /** Tap tolerance (px) when the tap point hits no place (e.g. tiny islands). */
@@ -113,7 +117,12 @@ export class MapView {
       pitchWithRotate: false,
       touchPitch: false,
       attributionControl: { compact: true },
+      locale: {
+        'AttributionControl.ToggleAttribution': 'Mostrar ou ocultar créditos do mapa',
+        'AttributionControl.MapFeedback': 'Sugerir correção no mapa',
+      },
     });
+    this.map.getCanvas().setAttribute('aria-label', 'Mapa dos bairros do Rio de Janeiro');
     this.map.touchZoomRotate.disableRotation();
     this.map.keyboard.disableRotation();
 
@@ -177,6 +186,12 @@ export class MapView {
     for (const source of SOURCES) this.map.setFilter(`${source}-highlight`, filter);
     cancelAnimationFrame(this.pulseFrame);
     if (!id) return;
+    if (reducedMotion.matches) {
+      for (const source of SOURCES) {
+        this.map.setPaintProperty(`${source}-highlight`, 'fill-opacity', 0.6);
+      }
+      return;
+    }
     const start = performance.now();
     let last = 0;
     const tick = (t: number) => {
@@ -223,7 +238,12 @@ export class MapView {
     const fitZoom = this.map.cameraForBounds(entry.bbox, { padding: pad })?.zoom ?? zoom;
     // Center it in the uncovered part of the screen.
     const offset: [number, number] = [(pad.left - pad.right) / 2, (pad.top - pad.bottom) / 2];
-    this.map.easeTo({ center, offset, zoom: Math.min(neededZoom, fitZoom), duration: 700 });
+    this.map.easeTo({
+      center,
+      offset,
+      zoom: Math.min(neededZoom, fitZoom),
+      duration: animationMs(),
+    });
   }
 
   /** Tells the map which parts of the screen are covered by UI panels. */
@@ -251,7 +271,10 @@ export class MapView {
         .map(([id]) => id);
     const bounds = this.boundsOf(targets);
     if (bounds) {
-      this.map.fitBounds(bounds, { padding: this.padding(24), duration: animate ? 700 : 0 });
+      this.map.fitBounds(bounds, {
+        padding: this.padding(24),
+        duration: animate ? animationMs() : 0,
+      });
     }
   }
 

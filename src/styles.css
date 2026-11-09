@@ -39,20 +39,6 @@
     --late: #fcc419;
     --bad: #ff6b6b;
   }
-
-  .maplibregl-ctrl-attrib,
-  .maplibregl-ctrl-attrib.maplibregl-compact {
-    background: rgb(26 30 36 / 0.85);
-    color: var(--muted);
-  }
-
-  .maplibregl-ctrl-attrib a {
-    color: var(--muted);
-  }
-
-  .maplibregl-ctrl-attrib-button {
-    filter: invert(1);
-  }
 }
 
 * {
@@ -517,4 +503,21 @@ select {
   .toast {
     transition: none;
   }
+}
+
+/* ---- Loading ------------------------------------------------------------- */
+
+.loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: var(--muted);
+  font-weight: 600;
+  z-index: 1;
+}
+
+[tabindex='-1']:focus {
+  outline: none;
 }

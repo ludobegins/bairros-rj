@@ -132,7 +132,9 @@ bairros-rj/
 - Map was hard to read: opaque neighborhood fills hid the basemap, positron/dark basemaps were too washed out, and the no-background mode was far too hard. → Always-on OpenFreeMap "liberty" basemap (light even in dark theme), near-transparent fills with haloed borders, background toggle removed (single "easy" level). See SPEC §6.
 - Custom favicon (Pão de Açúcar) instead of Vite's default.
 
-## Phase 5 — Polish and release
+## Phase 5 — Polish and release ✅
+
+> Done. Accessibility: focus moves to each new screen's heading (or the answer input), `aria-live` feedback, labelled map canvas and attribution button (pt-BR), `prefers-reduced-motion` disables camera animations and the pulse, results/stats use icon + color. Performance: game code ~10 KB gzipped; MapLibre (~287 KB gzipped) split into its own long-cached chunk; place data ~61 KB gzipped; loading message and basemap preconnect. The scripted Firefox playthrough lives in `tests/e2e/play.e2e.ts` (`npm run test:e2e`, not in CI). README rewritten. Playtested on a real phone by the owner.
 
 1. Accessibility pass: keyboard flow in type mode, focus management between screens, `aria-live` for feedback, color + icon in results.
 2. Performance: check bundle size and data size; lazy-load MapLibre CSS/JS if needed; verify load time on a throttled mobile profile.

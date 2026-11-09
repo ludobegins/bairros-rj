@@ -12,7 +12,8 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "data:fetch": "tsx scripts/fetch-data.ts",
-    "data:build": "tsx scripts/build-data.ts"
+    "data:build": "tsx scripts/build-data.ts",
+    "test:e2e": "tsx tests/e2e/play.e2e.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -26,6 +27,7 @@
     "globals": "^17.14.0",
     "mapshaper": "^0.7.101",
     "prettier": "^3.9.10",
+    "puppeteer-core": "^25.16.0",
     "topojson-server": "^3.0.1",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",

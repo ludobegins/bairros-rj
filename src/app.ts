@@ -13,6 +13,7 @@ import { statsScreen } from './ui/stats.ts';
 const DEFAULT_CONFIG: GameConfig = { mode: 'type', area: 'rio', zone: 'all' };
 
 export async function startApp(app: HTMLElement): Promise<void> {
+  const loading = app.querySelector('.loading');
   const mapEl = h('div', { id: 'map' });
   const root = h('div', { class: 'overlay' });
   const toastEl = h('div', { class: 'toast', role: 'status', 'aria-live': 'polite' });
@@ -65,6 +66,10 @@ export async function startApp(app: HTMLElement): Promise<void> {
   const show = (render: () => () => void) => {
     cleanup?.();
     cleanup = render();
+    // Move focus to the new screen unless it focused something itself (e.g. the answer input).
+    if (!root.contains(document.activeElement)) {
+      root.querySelector<HTMLElement>('[tabindex="-1"]')?.focus({ preventScroll: true });
+    }
   };
   const nav: Nav = {
     menu: () => show(() => menuScreen(ctx, nav)),
@@ -75,6 +80,7 @@ export async function startApp(app: HTMLElement): Promise<void> {
   };
 
   await view.whenReady();
+  loading?.remove();
   nav.menu();
   if (import.meta.env.DEV) Object.assign(window, { __view: view, __ctx: ctx, __nav: nav });
 }

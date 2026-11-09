@@ -36,7 +36,7 @@ export const menuScreen: Screen = (ctx, nav) => {
   const panel = h(
     'section',
     { class: 'panel menu', 'aria-labelledby': 'menu-title' },
-    h('h1', { id: 'menu-title' }, 'Bairros RJ'),
+    h('h1', { id: 'menu-title', tabindex: '-1' }, 'Bairros RJ'),
     h('p', { class: 'subtitle' }, 'Quanto você conhece o mapa do Rio?'),
     segmented<Mode>(
       'mode',

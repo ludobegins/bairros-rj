@@ -25,3 +25,6 @@ dist-ssr
 
 # Raw data downloads
 data/raw
+
+# E2E screenshots
+tests/e2e/screenshots

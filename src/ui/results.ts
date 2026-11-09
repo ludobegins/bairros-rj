@@ -50,7 +50,11 @@ export function resultsScreen(
   const panel = h(
     'section',
     { class: 'panel results', 'aria-labelledby': 'results-title' },
-    h('h2', { id: 'results-title' }, isNewRecord ? 'Novo recorde! 🎉' : 'Fim da rodada'),
+    h(
+      'h2',
+      { id: 'results-title', tabindex: '-1' },
+      isNewRecord ? 'Novo recorde! 🎉' : 'Fim da rodada',
+    ),
     h(
       'p',
       { class: 'big-score' },

@@ -60,7 +60,7 @@ export const statsScreen: Screen = (ctx, nav) => {
   const panel = h(
     'section',
     { class: 'panel stats', 'aria-labelledby': 'stats-title' },
-    h('h2', { id: 'stats-title' }, 'Onde você mais erra'),
+    h('h2', { id: 'stats-title', tabindex: '-1' }, 'Onde você mais erra'),
     body,
     h(
       'div',
