@@ -1,6 +1,6 @@
 # Bairros RJ — Specification (v1)
 
-A web geography game for learning and testing knowledge of Rio de Janeiro's neighborhoods (*bairros*) on an interactive map.
+A web geography game for learning and testing knowledge of Rio de Janeiro's neighborhoods (_bairros_) on an interactive map.
 
 ## 1. Scope of v1
 
@@ -68,7 +68,7 @@ In both modes, every place is drawn on the map with its boundaries visible and *
 
 - Options: **Todos**, **Centro**, **Zona Sul**, **Zona Norte**, **Zona Oeste**, **Zona Sudoeste**.
 - **Zona Sudoeste:** the Barra da Tijuca / Jacarepaguá region (Barra, Recreio, Jacarepaguá, Freguesia, Taquara, Vargens, etc.), separate from Zona Oeste (Campo Grande, Bangu, Santa Cruz, etc.). The exact list follows the most widely accepted current delimitation and is documented in the curated data file.
-- Uses the popular division (how *cariocas* talk), not the official Planning Areas (APs). Requires a curated `neighborhood → zone` mapping versioned in the repo (e.g. Barra da Tijuca = Zona Sudoeste; Bangu = Zona Oeste; Tijuca = Zona Norte; Ilha do Governador and Paquetá per the convention adopted and documented in the file).
+- Uses the popular division (how _cariocas_ talk), not the official Planning Areas (APs). Requires a curated `neighborhood → zone` mapping versioned in the repo (e.g. Barra da Tijuca = Zona Sudoeste; Bangu = Zona Oeste; Tijuca = Zona Norte; Ilha do Governador and Paquetá per the convention adopted and documented in the file).
 - With a filter active, the map frames the chosen zone; neighborhoods outside it are dimmed and not clickable. In Grande Rio, municipalities remain active regardless of the filter.
 
 ## 6. Map visuals
